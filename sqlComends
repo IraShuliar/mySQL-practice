@@ -1,0 +1,95 @@
+CREATE DATABASE myDatabase;
+
+Create TABLE myDatabase.pats(
+	id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    patKind CHAR(20) NOT NULL, 
+    patGander CHAR(1) NOT NULL,
+    patName CHAR(20),
+    patWeight DOUBLE,
+    patHeight DOUBLE
+);
+
+ALTER TABLE pats ADD personID INT;
+
+CREATE Table people (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    firstName CHAR(20) NOT NULL,
+    latsName CHAR(20) NOT NULL,
+    gender CHAR(1) NOT NULL,
+    cityID INT(6) 
+);
+
+ALTER TABLE pats MODIFY personID INT(6);
+
+CREATE TABLE city(
+	id INT(6) AUTO_INCREMENT PRIMARY KEY,
+    cityName CHAR(30),
+    citizen CHAR(40)
+);
+
+INSERT INTO pats (patKind, patGander, patName, patWeight, patHeight) VALUES ('cat', 'm', 'Murchyk', 3, 5.1), ('dog', 'f', 'Bimka', 5, 7.8), ('dog', 'f', 'Lili', 4, 10.1);
+
+ALTER TABLE people CHANGE latsName lastName CHAR(20) NOT NULL;
+
+INSERT INTO people (firstName, lastName, gender) VALUES ('Olga', 'Mirok', 'f'), ('Magda', 'Bind', 'f'), ('Andrij', 'Timed', 'm');
+
+INSERT INTO city (cityName) VALUES ('Warszawa'), ('Łodż'), ('Kraków'), ('Gdańsk'), ('Wrocław'), ('Gdynia');
+
+ALTER TABLE city DROP COLUMN citizen;
+
+INSERT INTO people (cityID) VALUES (2), (2), (6); -- dont use it for update data , because sql create new rows for that data
+
+
+UPDATE people SET cityID=3 WHERE id=1;
+UPDATE people SET cityID=3 WHERE id=2;
+UPDATE people SET cityID=5 WHERE id=3;
+
+UPDATE people SET firstName='Olga', lastName='Bingo', gender='f' WHERE id=4;
+UPDATE people SET firstName='Ivan', lastName='Kimcin', gender='m' WHERE id=5;
+UPDATE people SET firstName='Iran', lastName='Gorgo', gender='m' WHERE id=6;
+
+UPDATE pats SET personID=3 Where id=1;
+UPDATE pats SET personID=1 Where id=2;
+UPDATE pats SET personID=5 Where id=3;
+
+
+SELECT firstName, lastName FROM people WHERE cityID=1; == not found;
+
+SELECT firstName, lastName FROM people WHERE cityID=3; == Olga Mirok, Magda Bind
+
+
+ALTER TABLE people ADD personAge INT(6);
+
+UPDATE people SET personAge=34 WHERE id=1;
+UPDATE people SET personAge=24 WHERE id=2;
+UPDATE people SET personAge=18 WHERE id=3;
+UPDATE people SET personAge=21 WHERE id=4;
+UPDATE people SET personAge=44 WHERE id=5;
+UPDATE people SET personAge=14 WHERE id=6;
+
+SELECT firstName, lastName, personAge From people WHERE personAge>21; == Olga Mirok, Magda Bind, Ivan Kimcin;
+
+SELECT firstName, lastName, personAge From people WHERE personAge>21 ORDER BY personAge DESC;
+
+
+SELECT people.id, people.firstName, people.lastName, people.cityID, pats.patKind 
+FROM people, pats
+WHERE people.id=pats.personID AND people.cityID=3;
+
+
+INSERT INTO pats (patKind, patGander, patName, patWeight, patHeight, personID) VALUES ('fish', 'f', 'Marusia', 0.2, 0.12, 2), ('fish', 'f', 'Marta', 0.45, 0.16, 2), ('fish', 'f', 'Mariana', 0.3, 0.13, 2);
+
+SELECT COUNT(cityID) FROM people Where cityID=3; // 2
+
+SELECT COUNT(cityID) FROM people, pats Where pats.personID=people.id AND cityID=3 //4
+SELECT COUNT(cityID) FROM people, pats Where pats.personID=people.id AND cityID=5 //1
+
+SELECT patKind, COUNT(*) AS newColumn FROM pats GROUP BY patKind;
+
+
+SELECT MAX(newColumn) FROM( SELECT patKind, COUNT(*) AS newColumn FROM pats GROUP BY patKind ) AS counts;
+
+Select AVG(personAge) AS averageAge FROM people WHERE cityID=3;	
+
+Select city.cityName, AVG(personAge) AS averageAge FROM people, city WHERE people.cityID = city.id GROUP BY cityID;
+
